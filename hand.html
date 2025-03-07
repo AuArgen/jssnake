@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bad+Script&display=swap"
+          rel="stylesheet">
+    <style>
+        * {
+            font-family: "Bad Script", serif;
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        #show {
+            width: 28cm;
+            box-shadow: 0px 0px 5px 0px #ccc;
+            margin: 5rem auto;
+            padding: 1rem;
+            font-size: 1rem;
+            white-space: pre-wrap;
+        }
+
+        #text {
+            font-size: 1rem;
+            width: 28cm;
+            margin: 2rem auto;
+        }
+
+        #text textarea {
+            width: 100%;
+            height: 10rem;
+            font-family: "Bad Script", serif;
+            font-size: 18px;
+            line-height: 1.5;
+        }
+
+        #downloadBtn {
+            display: block;
+            margin: 1rem auto;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div id="text">
+    <textarea placeholder="Текст жаз..."></textarea>
+</div>
+
+<div id="show"></div>
+<button id="downloadBtn">Скачать изображение</button>
+<canvas id="canvas"></canvas>
+
+<script>
+    document.querySelector('textarea').addEventListener('input', function (e) {
+        document.querySelector('#show').textContent = e.target.value;
+    });
+
+    document.getElementById('downloadBtn').addEventListener('click', function () {
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const text = document.querySelector('#show').textContent;
+
+        // Размеры canvas
+        canvas.width = 800;
+        canvas.height = 500;
+
+        // Фон
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Шрифт
+        ctx.fillStyle = "#000";
+        ctx.font = "30px 'Bad Script', serif";
+        ctx.textBaseline = "top";
+
+        // Разбиваем текст на строки
+        const lines = text.split("\n");
+        let x = 50;
+        let y = 50;
+        let lineHeight = 40;
+
+        // Рисуем строки
+        lines.forEach(line => {
+            let words = line.split(/(\s+)/); // Учитываем пробелы
+            let currentLine = "";
+            words.forEach(word => {
+                let testLine = currentLine + word;
+                let testWidth = ctx.measureText(testLine).width;
+                if (testWidth > 700) {
+                    ctx.fillText(currentLine, x, y);
+                    currentLine = word;
+                    y += lineHeight;
+                } else {
+                    currentLine = testLine;
+                }
+            });
+            ctx.fillText(currentLine, x, y);
+            y += lineHeight;
+        });
+
+        // Скачивание изображения
+        const link = document.createElement('a');
+        link.download = "text-image.png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+    });
+</script>
+</body>
+</html>

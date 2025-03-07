@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f6f6f6;
+        }
+
+        .block {
+            width: 400px;
+            height: 400px;
+            margin: 3rem auto;
+            box-shadow: 0 0 5px #ccc;
+            background: #fff;
+            display: flex;
+            flex-wrap: wrap;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .block .box {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            background: #0b0b0b50;
+            border: 1px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /*transition: all 0.1s ease-in;*/
+        }
+
+        .keyboard {
+            position: absolute;
+            right: 10px;
+            top: calc(400px - 20px);
+            width: 200px;
+            height: 100px;
+            box-shadow: 0 0 5px #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .keyboard .circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            box-shadow: 0 0 5px #ccc;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 5px;
+        }
+
+        .keyboard .circle .w-100 {
+            width: 100px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .keyboard .circle .center {
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 5px 10px;
+            box-shadow: 0 0 5px #ccc;
+        }
+
+        .btn:hover, .btn.active {
+            cursor: pointer;
+            background: #0b0b0b50;
+            color: #fff;
+        }
+
+        .red_circle {
+            position: relative;
+            width: 20px;
+            height: 20px;
+            top: 0;
+            left: 0;
+            border-radius: 50%;
+            box-shadow: 0 0 5px #ccc;
+            background: red;
+            animation: red_circle 1s infinite;
+        }
+
+        @keyframes red_circle {
+            0% {
+                transform: scale(0.7);
+            }
+            40% {
+                transform: scale(1.2);
+            }
+            80% {
+                transform: scale(0.9);
+            }
+        }
+
+        .total {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #fff;
+            padding: 5px 10px;
+            box-shadow: 0 0 5px #ccc;
+            font-size: 1.2rem;
+        }
+
+        #head {
+            border-radius: 0 10px 10px 0;
+            /*animation: head_animation 0.5s infinite;*/
+        }
+
+    </style>
+</head>
+<body>
+<div class="total">
+    Point: <span id="point">0</span>
+    <div>
+        Snake X: <span id="snake_x"></span>
+        <br>
+        Snake Y: <span id="snake_y"></span>
+        <br>
+        Eat X: <span id="eat_x"></span>
+        <br>
+        Eat Y: <span id="eat_y"></span>
+    </div>
+</div>
+<div class="block">
+    <div class="box " id="head" style="background: orange"></div>
+    <div class="red_circle"></div>
+</div>
+<div class="keyboard">
+    <div class="circle">
+        <div class="w-100 center">
+            <div class="btn" id="btn_up">
+                <i class="fa-solid fa-arrow-up"></i>
+            </div>
+        </div>
+        <div class="w-100">
+            <div class="btn" id="btn_left">
+                <i class="fa-solid fa-arrow-left"></i>
+            </div>
+            <div class="btn" id="btn_right">
+                <i class="fa-solid fa-arrow-right"></i>
+            </div>
+        </div>
+        <div class="w-100 center">
+            <div class="btn" id="btn_down">
+                <i class="fa-solid fa-arrow-down"></i>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var block = document.querySelector('.block');
+    var x_left = block.offsetLeft;
+    var y_top = block.offsetTop;
+    var box = document.querySelector('.box');
+    var red_circle = document.querySelector('.red_circle');
+    var kadam = 20;
+    var vector = 'right';
+    var last_vector = vector;
+    var total = 0;
+    var timer = '';
+    var boxes_vectors = [
+        {x: 0, y: 0, vector: vector},
+    ]
+
+    var over_music = new Audio('songs/over.mp3');
+
+    var btn_up = document.querySelector('#btn_up');
+    var btn_left = document.querySelector('#btn_left');
+    var btn_right = document.querySelector('#btn_right');
+    var btn_down = document.querySelector('#btn_down');
+
+    onkeydown = function (e) {
+        if (e.key === 'ArrowUp') {
+            if (vector !== 'down') vector = 'up';
+        }
+        if (e.key === 'ArrowLeft') {
+            if (vector !== 'right') vector = 'left';
+        }
+        if (e.key === 'ArrowRight') {
+            if (vector !== 'left') vector = 'right';
+        }
+        if (e.key === 'ArrowDown') {
+            if (vector !== 'up') vector = 'down';
+        }
+        if (e.key === 'q') {
+            clearTimeout(timer);
+        }
+        if (e.key === 's') {
+            start_timer();
+        }
+    }
+
+    function start_timer() {
+        timer = setTimeout(timer_function, 150-total*2);
+    }
+
+    btn_up.addEventListener('click', function () {
+        if (vector !== 'down') vector = 'up';
+
+    });
+    btn_left.addEventListener('click', function () {
+        if (vector !== 'right') vector = 'left';
+
+    });
+    btn_right.addEventListener('click', function () {
+        if (vector !== 'left') vector = 'right';
+
+    });
+    btn_down.addEventListener('click', function () {
+        if (vector !== 'up') vector = 'down';
+    });
+
+    // var timer = setInterval(timer_function, 150);
+
+    function timer_function() {
+        timer = setTimeout(timer_function, 150-total * 2);
+        document.querySelector('#btn_' + last_vector).classList.remove('active');
+        document.querySelector('#btn_' + vector).classList.add('active');
+        var doc_boxes = document.querySelectorAll('.box');
+        var size_boxes = boxes_vectors.length - 1;
+        var one_box = {
+            'x': boxes_vectors[size_boxes]['x'],
+            'y': boxes_vectors[size_boxes]['y'],
+            'vector': vector,
+            'last_vector': last_vector,
+        };
+        if (vector === 'up') {
+            box.style.borderRadius = '10px 10px 0 0';
+            one_box['y'] -= kadam;
+        }
+        if (vector === 'left') {
+            box.style.borderRadius = '10px 0 0 10px';
+            one_box['x'] -= kadam;
+        }
+        if (vector === 'right') {
+            box.style.borderRadius = '0 10px 10px 0';
+            one_box['x'] += kadam;
+        }
+        if (vector === 'down') {
+            box.style.borderRadius = '0 0 10px 10px';
+            one_box['y'] += kadam;
+        }
+        boxes_vectors.push(one_box);
+        for (var i = 0; i < total + 1; i++) {
+            one_box = boxes_vectors[boxes_vectors.length - (i + 1)];
+            var one_doc_box = doc_boxes[i];
+
+            if (i === 0 && one_box['y'] >= 400) {
+                one_box['y'] = 0;
+            }
+            if (i === 0 && one_box['y'] < 0) {
+                one_box['y'] = 400;
+            }
+            if (i === 0 && one_box['x'] >= 400) {
+                one_box['x'] = 0;
+            }
+            if (i === 0 && one_box['x'] < 0) {
+                one_box['x'] = 400;
+            }
+
+            one_doc_box.style.top = one_box['y'] + 'px';
+            one_doc_box.style.left = one_box['x'] + 'px';
+        }
+        verify_vector_eat();
+        verify_game_over();
+        last_vector = vector;
+
+    }
+
+    function random_generated_vector() {
+        if (total === 400) {
+            alert('The end!!!');
+            window.location.reload();
+        }
+        var x = Math.ceil(Math.random() * 18) * 20;
+        var y = Math.ceil(Math.random() * 18) * 20;
+        if (verify_vector_bosh(x, y)) return random_generated_vector();
+        red_circle.style.top = y + 'px';
+        red_circle.style.left = x + 'px';
+    }
+
+    random_generated_vector()
+
+    function verify_vector_eat() {
+        if (parseInt(getComputedStyle(red_circle).left) === parseInt(getComputedStyle(box).left)
+            && parseInt(getComputedStyle(red_circle).top) === parseInt(getComputedStyle(box).top)) {
+            random_generated_vector();
+            var success_music = new Audio('songs/success.mp3');
+            success_music.play();
+            setInterval(function () {
+                success_music.pause();
+            }, 1800);
+            add_box();
+            total++;
+            show_total();
+
+
+        }
+        document.querySelector('#snake_x').innerHTML = parseInt(getComputedStyle(box).left);
+        document.querySelector('#snake_y').innerHTML = parseInt(getComputedStyle(box).top);
+        document.querySelector('#eat_x').innerHTML = parseInt(getComputedStyle(red_circle).left);
+        document.querySelector('#eat_y').innerHTML = parseInt(getComputedStyle(red_circle).top);
+    }
+
+    function show_total() {
+        document.querySelector('#point').innerHTML = total;
+    }
+
+    function add_box() {
+        // var end_box = boxes_vectors[total - 2];
+        // console.log(end_box)
+        var new_box = document.createElement('div');
+        new_box.classList.add('box');
+        new_box.style.top = -20 + 'px';
+        new_box.style.left = -20 + 'px';
+        new_box.innerHTML = total % 100;
+        // boxes_vectors.push(new_box);
+        block.appendChild(new_box);
+    }
+
+    function verify_game_over() {
+        var doc_boxes = document.querySelectorAll('.box');
+        var size_b = boxes_vectors.length - 1;
+        for (var i = 1; i < doc_boxes.length; i++) {
+            if (boxes_vectors[size_b]['y'] === boxes_vectors[size_b - i]['y']
+                && boxes_vectors[size_b]['x'] === boxes_vectors[size_b - i]['x']) {
+                over_music.play();
+                alert('Game Over');
+                clearInterval(timer);
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1500);
+            }
+        }
+    }
+
+    function verify_vector_bosh(x, y) {
+        var size_b = boxes_vectors.length - 1;
+        for (var i = 0; i < total; i++) {
+            if (y === boxes_vectors[size_b - i]['y']
+                && x === boxes_vectors[size_b - i]['x']) {
+                return true;
+            }
+        }
+        return false;
+    }
+</script>
+</body>
+</html>
