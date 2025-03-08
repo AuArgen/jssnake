@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Title</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -126,13 +129,30 @@
             border-radius: 0 10px 10px 0;
             /*animation: head_animation 0.5s infinite;*/
         }
+        .total #stopBTN {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .total div.x_y, .total #stopBTN {
+                display: none;
+            }
+            .block {
+                transform: scale(0.8);
+            }
+            .keyboard {
+                transform: scale(1);
+                right: 5rem;
+                top: calc(100dvh - 5rem);
+            }
+        }
 
     </style>
 </head>
 <body>
 <div class="total">
     Point: <span id="point">0</span>
-    <div>
+    <div class="x_y">
         Snake X: <span id="snake_x"></span>
         <br>
         Snake Y: <span id="snake_y"></span>
@@ -140,6 +160,10 @@
         Eat X: <span id="eat_x"></span>
         <br>
         Eat Y: <span id="eat_y"></span>
+    </div>
+    <div>
+        <button id="startBTN">Начать</button>
+        <button id="stopBTN">Стоп</button>
     </div>
 </div>
 <div class="block">
@@ -207,9 +231,22 @@
             clearTimeout(timer);
         }
         if (e.key === 's') {
+            clearTimeout(timer);
             start_timer();
         }
     }
+
+    document.getElementById('startBTN').addEventListener('click', ()=> {
+        document.getElementById('startBTN').style.display = 'none';
+        document.getElementById('stopBTN').style.display = 'inline-block';
+        start_timer();
+    });
+
+    document.getElementById('stopBTN').addEventListener('click', ()=> {
+        document.getElementById('stopBTN').style.display = 'none';
+        document.getElementById('startBTN').style.display = 'inline-block';
+        clearTimeout(timer);
+    });
 
     function start_timer() {
         timer = setTimeout(timer_function, 150-total*2);
