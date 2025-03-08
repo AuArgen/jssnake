@@ -140,6 +140,7 @@
             .block {
                 transform: scale(0.8);
                 margin: 5rem 1rem;
+                margin-left: -1rem;
             }
             .keyboard {
                 transform: scale(1.2);
@@ -208,7 +209,7 @@
         {x: 0, y: 0, vector: vector},
     ]
 
-    var over_music = new Audio('songs/over.mp3');
+    var over_music = new Audio('https://github.com/AuArgen/jssnake/raw/refs/heads/main/songs/over.mp3');
 
     var btn_up = document.querySelector('#btn_up');
     var btn_left = document.querySelector('#btn_left');
@@ -344,7 +345,7 @@
         if (parseInt(getComputedStyle(red_circle).left) === parseInt(getComputedStyle(box).left)
             && parseInt(getComputedStyle(red_circle).top) === parseInt(getComputedStyle(box).top)) {
             random_generated_vector();
-            var success_music = new Audio('songs/success.mp3');
+            var success_music = new Audio('https://github.com/AuArgen/jssnake/raw/refs/heads/main/songs/success.mp3');
             success_music.play();
             setInterval(function () {
                 success_music.pause();
